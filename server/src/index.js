@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import errorHandler from './middleware/errorHandler.js';
+import authRoutes from './routes/auth.js';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(cookieParser());
 
 app.get('/api/health', (_req, res) => res.json({ ok: true}));
 
+app.use('/api/auth', authRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
