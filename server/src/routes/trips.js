@@ -14,12 +14,40 @@ r.get("/", asyncHandler(async (req, res) => {
 
 // POST /api/trips — create
 r.post("/", asyncHandler(async (req, res) => {
-  const { name, location, startDate, endDate, budget = 0, notes = "", imageUrl = "" } = req.body;
+  const { name, location, startDate, endDate, budget, notes = "", imageUrl = "" } = req.body;
+
+  // Basic required fields
   if (!name?.trim() || !location?.trim() || !startDate || !endDate) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ error: "Missing required fields: name, location, startDate, endDate" });
   }
-  const t = await Trip.create({ userId: req.user.id, name: name.trim(), location: location.trim(), startDate, endDate, budget, notes, imageUrl });
-  res.status(201).json({ trip: t });
+
+  // Date validation
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (isNaN(start) || isNaN(end)) {
+    return res.status(400).json({ error: "Invalid date format" });
+  }
+  if (end < start) {
+    return res.status(400).json({ error: "End date cannot be before start date" });
+  }
+
+  // Budget validation
+  let parsedBudget = Number(budget) || 0;
+  if (parsedBudget < 0) parsedBudget = 0;
+
+  // Create trip
+  const trip = await Trip.create({
+    userId: req.user.id,
+    name: name.trim(),
+    location: location.trim(),
+    startDate,
+    endDate,
+    budget: parsedBudget,
+    notes,
+    imageUrl
+  });
+
+  res.status(201).json({ trip });
 }));
 
 // GET /api/trips/:id — read one (must belong to user)
@@ -31,14 +59,44 @@ r.get("/:id", asyncHandler(async (req, res) => {
 
 // PUT /api/trips/:id — update
 r.put("/:id", asyncHandler(async (req, res) => {
-  const update = req.body;
-  const t = await Trip.findOneAndUpdate(
+  const { name, location, startDate, endDate, budget, notes, imageUrl } = req.body;
+
+  // Optional: validate dates only if provided
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ error: "Invalid date format" });
+    }
+    if (end < start) {
+      return res.status(400).json({ error: "End date cannot be before start date" });
+    }
+  }
+
+  // Budget validation if provided
+  let parsedBudget = budget !== undefined ? Number(budget) : undefined;
+  if (parsedBudget !== undefined && parsedBudget < 0) {
+    parsedBudget = 0;
+  }
+
+  const updateFields = {
+    ...(name && { name: name.trim() }),
+    ...(location && { location: location.trim() }),
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate }),
+    ...(parsedBudget !== undefined && { budget: parsedBudget }),
+    ...(notes && { notes }),
+    ...(imageUrl && { imageUrl })
+  };
+
+  const trip = await Trip.findOneAndUpdate(
     { _id: req.params.id, userId: req.user.id },
-    update,
+    updateFields,
     { new: true, runValidators: true }
   );
-  if (!t) return res.status(404).json({ error: "Trip not found" });
-  res.json({ trip: t });
+
+  if (!trip) return res.status(404).json({ error: "Trip not found" });
+  res.json({ trip });
 }));
 
 // DELETE /api/trips/:id
