@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
+import errorHandler from './middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get('/api/health', (_req, res) => res.json({ ok: true}));
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
 mongoose.connect(process.env.MONGO_URI)
