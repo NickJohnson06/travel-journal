@@ -1,10 +1,18 @@
+import rateLimit from 'express-rate-limit';
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: "Too many requests, try again later." }
+});
+
 const router = Router();
+router.use(authLimiter);
 
 function setAuthCookie(res, user) {
   const token = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
