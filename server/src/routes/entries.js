@@ -3,6 +3,8 @@ import requireAuth from "../middleware/requireAuth.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Trip from "../models/Trip.js";
 import Entry from "../models/Entry.js";
+import { validateRequest } from "../validation/validateRequest.js";
+import { entrySchema } from "../validation/entrySchema.js";
 
 const r = Router();
 r.use(requireAuth);
@@ -23,10 +25,8 @@ r.get("/", asyncHandler(async (req, res) => {
 }));
 
 // POST /api/entries
-r.post("/", asyncHandler(async (req, res) => {
+r.post("/", validateRequest(entrySchema), asyncHandler(async (req, res) => {
   const { tripId, title, content, date, photoUrl = "" } = req.body;
-  if (!tripId || !title?.trim() || !content?.trim() || !date)
-    return res.status(400).json({ error: "Missing required fields" });
 
   await assertTripOwner(req.user.id, tripId);
 
@@ -50,7 +50,7 @@ r.get("/:id", asyncHandler(async (req, res) => {
 }));
 
 // PUT /api/entries/:id
-r.put("/:id", asyncHandler(async (req, res) => {
+r.put("/:id", validateRequest(entrySchema.partial()), asyncHandler(async (req, res) => {
   const e = await Entry.findById(req.params.id);
   if (!e) return res.status(404).json({ error: "Entry not found" });
   await assertTripOwner(req.user.id, e.tripId);
