@@ -7,6 +7,7 @@ import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 import authRoutes from './routes/auth.js';
 import tripRoutes from './routes/trips.js';
+import entryRoutes from "./routes/entries.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(cookieParser());
 app.get('/api/health', (_req, res) => res.json({ ok: true}));
 app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripRoutes);
+app.use("/api/entries", entryRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
