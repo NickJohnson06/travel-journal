@@ -11,6 +11,4 @@ const TripSchema = new mongoose.Schema({
   imageUrl: { type: String, default: "" }
 }, { timestamps: true });
 
-TripSchema.index({ userId: 1 });
-
 export default mongoose.model('Trip', TripSchema);
