@@ -13,4 +13,6 @@ const EntrySchema = new mongoose.Schema({
   photoUrl: { type: String, default: "" },
 }, { timestamps: true });
 
+EntrySchema.index({ tripId: 1 });
+
 export default mongoose.model("Entry", EntrySchema);
