@@ -10,13 +10,15 @@ import AddEntry from "./pages/AddEntry.jsx";
 import EditEntry from "./pages/EditEntry.jsx";
 import EditTrip from "./pages/EditTrip.jsx";
 import Profile from "./pages/Profile.jsx";
+import Navbar from "./components/Navbar.jsx";
 
 function Protected({ children }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    api.get("/auth/me")
+    api
+      .get("/auth/me")
       .then((res) => {
         setUser(res.data.user);
         setLoading(false);
@@ -38,7 +40,14 @@ function Protected({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  return (
+    <>
+      <Navbar user={user} />
+      <main className="pt-16">
+        {children}
+      </main>
+    </>
+  );
 }
 
 export default function App() {
