@@ -6,6 +6,8 @@ import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import AddTrip from "./pages/AddTrip.jsx";
 import TripDetail from "./pages/TripDetail.jsx";
+import AddEntry from "./pages/AddEntry.jsx";
+import EditEntry from "./pages/EditEntry.jsx";
 
 function Protected({ children }) {
   const [loading, setLoading] = useState(true);
@@ -64,6 +66,22 @@ export default function App() {
           element={
             <Protected>
               <TripDetail />
+            </Protected>
+          }
+        />
+        <Route
+          path="/trips/:id/entries/new"
+          element={
+            <Protected>
+              <AddEntry />
+            </Protected>
+          }
+        />
+        <Route
+          path="/entries/:entryId/edit"
+          element={
+            <Protected>
+              <EditEntry />
             </Protected>
           }
         />

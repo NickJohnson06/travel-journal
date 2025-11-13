@@ -12,6 +12,7 @@ export default function TripDetail() {
 
   useEffect(() => {
     let cancelled = false;
+
     async function load() {
       setLoading(true);
       setError("");
@@ -20,6 +21,7 @@ export default function TripDetail() {
           api.get(`/trips/${id}`),
           api.get("/entries", { params: { tripId: id } }),
         ]);
+
         if (!cancelled) {
           setTrip(tripRes.data.trip);
           setEntries(entryRes.data.entries || []);
@@ -32,11 +34,24 @@ export default function TripDetail() {
         }
       }
     }
+
     load();
+
     return () => {
       cancelled = true;
     };
   }, [id]);
+
+  async function handleDeleteEntry(entryId) {
+    const yes = window.confirm("Delete this entry? This cannot be undone.");
+    if (!yes) return;
+    try {
+      await api.delete(`/entries/${entryId}`);
+      setEntries((prev) => prev.filter((e) => e._id !== entryId));
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to delete entry.");
+    }
+  }
 
   if (loading) {
     return (
@@ -56,7 +71,7 @@ export default function TripDetail() {
             Trip not available
           </h1>
           <p className="text-sm text-slate-400 mb-4">
-            {error || "We couldn&apos;t find this trip."}
+            {error || "We couldn't find this trip."}
           </p>
           <button
             onClick={() => nav("/dashboard")}
@@ -106,7 +121,9 @@ export default function TripDetail() {
             <p className="text-sm text-slate-400">{trip.location}</p>
           </div>
           <div className="text-right text-xs text-slate-400">
-            <p>{start} → {end}</p>
+            <p>
+              {start} → {end}
+            </p>
             {trip.budget !== undefined && trip.budget !== null && (
               <p className="mt-1">
                 Budget:{" "}
@@ -128,9 +145,7 @@ export default function TripDetail() {
       {/* Journal section */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-skyaqua">
-            Travel Journal
-          </h2>
+          <h2 className="text-lg font-medium text-skyaqua">Travel Journal</h2>
           <button
             onClick={() => nav(`/trips/${trip._id}/entries/new`)}
             className="text-xs text-skyaqua hover:text-sky-300 transition"
@@ -147,7 +162,12 @@ export default function TripDetail() {
         ) : (
           <div className="space-y-3">
             {entries.map((entry) => (
-              <EntryCard key={entry._id} entry={entry} />
+              <EntryCard
+                key={entry._id}
+                entry={entry}
+                onEdit={() => nav(`/entries/${entry._id}/edit`)}
+                onDelete={() => handleDeleteEntry(entry._id)}
+              />
             ))}
           </div>
         )}
@@ -156,13 +176,29 @@ export default function TripDetail() {
   );
 }
 
-function EntryCard({ entry }) {
+function EntryCard({ entry, onEdit, onDelete }) {
   const date = new Date(entry.date).toLocaleDateString();
   return (
     <article className="card p-4 border-l-4 border-skyaqua/70">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-sm font-semibold text-white">{entry.title}</h3>
-        <span className="text-xs text-slate-400">{date}</span>
+        <div>
+          <h3 className="text-sm font-semibold text-white">{entry.title}</h3>
+          <span className="text-xs text-slate-400">{date}</span>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={onEdit}
+            className="text-[11px] text-skyaqua hover:text-sky-300"
+          >
+            Edit
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-[11px] text-red-400 hover:text-red-300"
+          >
+            Delete
+          </button>
+        </div>
       </div>
       <p className="mt-2 text-xs text-slate-300 line-clamp-3">
         {entry.content}
