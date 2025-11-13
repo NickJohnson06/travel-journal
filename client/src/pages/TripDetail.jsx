@@ -53,6 +53,19 @@ export default function TripDetail() {
     }
   }
 
+  async function handleDeleteTrip() {
+    const yes = window.confirm(
+      "Delete this trip and all its journal entries? This cannot be undone."
+    );
+    if (!yes) return;
+    try {
+      await api.delete(`/trips/${trip._id}`);
+      nav("/dashboard");
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to delete trip.");
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center app-bg">
@@ -103,6 +116,12 @@ export default function TripDetail() {
             className="px-3 py-1.5 rounded-xl border border-slate-700 text-slate-200 text-xs hover:bg-slate-800/60"
           >
             Edit Trip
+          </button>
+          <button
+            onClick={handleDeleteTrip}
+            className="px-3 py-1.5 rounded-xl border border-red-500/70 text-red-300 text-xs hover:bg-red-500/10"
+          >
+            Delete Trip
           </button>
           <button
             onClick={() => nav(`/trips/${trip._id}/entries/new`)}

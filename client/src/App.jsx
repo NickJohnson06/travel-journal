@@ -8,6 +8,7 @@ import AddTrip from "./pages/AddTrip.jsx";
 import TripDetail from "./pages/TripDetail.jsx";
 import AddEntry from "./pages/AddEntry.jsx";
 import EditEntry from "./pages/EditEntry.jsx";
+import EditTrip from "./pages/EditTrip.jsx";
 
 function Protected({ children }) {
   const [loading, setLoading] = useState(true);
@@ -82,6 +83,14 @@ export default function App() {
           element={
             <Protected>
               <EditEntry />
+            </Protected>
+          }
+        />
+        <Route
+          path="/trips/:id/edit"
+          element={
+            <Protected>
+              <EditTrip />
             </Protected>
           }
         />
