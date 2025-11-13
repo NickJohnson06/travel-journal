@@ -4,6 +4,7 @@ import { api } from "./lib/api";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import AddTrip from "./pages/AddTrip.jsx";
 
 function Protected({ children }) {
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,14 @@ export default function App() {
           element={
             <Protected>
               <Dashboard />
+            </Protected>
+          }
+        />
+        <Route
+          path="/trips/new"
+          element={
+            <Protected>
+              <AddTrip />
             </Protected>
           }
         />
