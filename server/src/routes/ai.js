@@ -1,8 +1,7 @@
-// src/routes/ai.js
 import express from "express";
 import { z } from "zod";
 import OpenAI from "openai";
-import { requireAuth } from "../middleware/auth.js";
+import requireAuth from "../middleware/requireAuth.js";
 
 const router = express.Router();
 
