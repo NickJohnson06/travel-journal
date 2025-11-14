@@ -29,7 +29,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center app-bg">
       <div className="card w-full max-w-md p-8">
-        <h1 className="text-2xl font-semibold mb-2">Welcome aboard</h1>
+        <h1 className="text-2xl font-semibold mb-2">Welcome to RoamLog!</h1>
         <p className="text-sm text-slate-400 mb-6">
           Sign in to access your travel journal.
         </p>
