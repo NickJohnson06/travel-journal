@@ -24,14 +24,16 @@ export default function Navbar({ user }) {
         {/* Brand */}
         <div className="flex items-center gap-2">
           <div className="h-6 w-6 rounded-full bg-skyaqua/20 flex items-center justify-center border border-skyaqua/50">
-            <span className="text-[11px] text-skyaqua font-semibold">TJ</span>
+            <span className="text-[11px] text-skyaqua font-semibold">
+              RL
+            </span>
           </div>
           <div>
             <p className="text-sm font-semibold text-white leading-tight">
-              Travel Journal
+              RoamLog
             </p>
             <p className="text-[10px] text-slate-400 leading-tight">
-              Plan & remember your journeys
+              Plan trips. Capture memories.
             </p>
           </div>
         </div>

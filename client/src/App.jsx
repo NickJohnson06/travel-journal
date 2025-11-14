@@ -43,7 +43,7 @@ function Protected({ children }) {
   return (
     <>
       <Navbar user={user} />
-      <main className="pt-16">
+      <main className="pt-16 pb-8">
         {children}
       </main>
     </>

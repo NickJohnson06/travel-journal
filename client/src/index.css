@@ -2,12 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global travel theme */
 body {
   @apply bg-skydeep text-slate-100 min-h-screen;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, -sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  scroll-behavior: smooth;
 }
 
+/* Main app background glow */
 .app-bg {
   background:
     radial-gradient(circle at top, rgba(56,189,248,0.14), transparent),
@@ -15,6 +16,7 @@ body {
     #020817;
 }
 
+/* Reusable card style */
 .card {
   @apply bg-slate-900/80 border border-slate-800/80 rounded-2xl shadow-card;
 }
