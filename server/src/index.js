@@ -8,6 +8,7 @@ import notFound from './middleware/notFound.js';
 import authRoutes from './routes/auth.js';
 import tripRoutes from './routes/trips.js';
 import entryRoutes from "./routes/entries.js";
+import aiRoutes from "./routes/ai.js";
 
 dotenv.config();
 mongoose.set('strictQuery', true);
@@ -21,7 +22,8 @@ app.use(cookieParser());
 app.get('/api/health', (_req, res) => res.json({ ok: true}));
 app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripRoutes);
-app.use("/api/entries", entryRoutes);
+app.use("/api/entries", entryRoutes)
+app.use("/api/ai", aiRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

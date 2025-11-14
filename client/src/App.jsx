@@ -10,6 +10,7 @@ import AddEntry from "./pages/AddEntry.jsx";
 import EditEntry from "./pages/EditEntry.jsx";
 import EditTrip from "./pages/EditTrip.jsx";
 import Profile from "./pages/Profile.jsx";
+import AiPlanner from "./pages/AiPlanner.jsx";
 import Navbar from "./components/Navbar.jsx";
 
 function Protected({ children }) {
@@ -109,6 +110,14 @@ export default function App() {
           element={
             <Protected>
               <Profile />
+            </Protected>
+          }
+        />
+        <Route
+          path="/ai-planner"
+          element={
+            <Protected>
+              <AiPlanner />
             </Protected>
           }
         />

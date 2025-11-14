@@ -56,6 +56,14 @@ export default function Navbar({ user }) {
           >
             Profile
           </NavLink>
+          <NavLink
+            to="/ai-planner"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : linkInactive}`
+            }
+          >
+            AI Planner
+          </NavLink>
         </nav>
 
         {/* User + logout */}
