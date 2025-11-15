@@ -1,16 +1,19 @@
 import express from 'express';
 import dotenv from 'dotenv';
+dotenv.config();
+
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
+
 import authRoutes from './routes/auth.js';
 import tripRoutes from './routes/trips.js';
 import entryRoutes from "./routes/entries.js";
 import aiRoutes from "./routes/ai.js";
 
-dotenv.config();
+
 mongoose.set('strictQuery', true);
 
 const app = express();

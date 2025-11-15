@@ -5,18 +5,12 @@ import requireAuth from "../middleware/requireAuth.js";
 
 const router = express.Router();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 const itinerarySchema = z.object({
   destination: z.string().min(2),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   days: z.number().int().min(1).max(14).optional(),
-  style: z
-    .string()
-    .optional(), // e.g. "food-focused", "budget traveler", "museum-heavy"
+  style: z.string().optional(), // e.g. "food-focused", "budget traveler", "museum-heavy"
   budgetLevel: z
     .enum(["budget", "midrange", "luxury"])
     .optional()
@@ -24,6 +18,7 @@ const itinerarySchema = z.object({
 });
 
 router.post("/itinerary", requireAuth, async (req, res) => {
+  // Make sure the API key exists at request time
   if (!process.env.OPENAI_API_KEY) {
     return res.status(500).json({
       error: "AI is not configured on the server.",
@@ -81,17 +76,16 @@ Requirements:
 `;
 
   try {
+    // Initialize OpenAI *inside* the handler
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // or any model the user chooses
+      model: "gpt-4o-mini",
       messages: [
-        {
-          role: "system",
-          content: "You are an expert travel planner.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
+        { role: "system", content: "You are an expert travel planner." },
+        { role: "user", content: prompt },
       ],
       temperature: 0.8,
     });
