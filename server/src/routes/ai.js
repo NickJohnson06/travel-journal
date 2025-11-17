@@ -7,25 +7,26 @@ const router = express.Router();
 
 const itinerarySchema = z.object({
   destination: z.string().min(2),
+  days: z.number().int().min(1).max(14).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  days: z.number().int().min(1).max(14).optional(),
-  style: z.string().optional(), // e.g. "food-focused", "budget traveler", "museum-heavy"
+  style: z.string().optional(),
   budgetLevel: z
     .enum(["budget", "midrange", "luxury"])
     .optional()
     .default("midrange"),
 });
 
+// POST /api/ai/itinerary
 router.post("/itinerary", requireAuth, async (req, res) => {
-  // Make sure the API key exists at request time
-  if (!process.env.OPENAI_API_KEY) {
+  // Ensure API key exists
+  if (!process.env.OPENROUTER_API_KEY) {
     return res.status(500).json({
       error: "AI is not configured on the server.",
     });
   }
 
-  const parse = itinerarySchema.safeParse({
+  const parsed = itinerarySchema.safeParse({
     ...req.body,
     days:
       req.body.days !== undefined
@@ -33,15 +34,15 @@ router.post("/itinerary", requireAuth, async (req, res) => {
         : undefined,
   });
 
-  if (!parse.success) {
+  if (!parsed.success) {
     return res.status(400).json({
       error: "Invalid itinerary request.",
-      details: parse.error.format(),
+      details: parsed.error.format(),
     });
   }
 
   const { destination, startDate, endDate, days, style, budgetLevel } =
-    parse.data;
+    parsed.data;
 
   const daysText =
     days ||
@@ -49,40 +50,35 @@ router.post("/itinerary", requireAuth, async (req, res) => {
       ? `from ${startDate} to ${endDate}`
       : "for a 3–5 day trip");
 
-  const styleText = style
-    ? `The traveler prefers: ${style}.`
-    : "The traveler has flexible interests.";
-
-  const budgetText =
-    budgetLevel === "budget"
-      ? "They are on a budget."
-      : budgetLevel === "luxury"
-      ? "They prefer a more premium experience."
-      : "They are midrange and price-conscious but flexible.";
-
   const prompt = `
-You are a friendly travel planner for an app called RoamLog.
+You are an expert travel planner for an app called RoamLog.
 
 Create a daily itinerary for a trip to ${destination}, ${daysText}.
-${styleText}
-${budgetText}
+Travel style: ${style || "general interests"}.
+Budget level: ${budgetLevel} traveler.
 
 Requirements:
 - Organize the plan day-by-day.
-- For each day, list 3–5 activities with short descriptions.
-- Mix food, sightseeing, and local experiences.
-- Keep the tone practical and concise.
-- At the end, add 3 quick tips specific to ${destination}.
+- Write 3–5 activities per day.
+- Include short descriptions.
+- Mix food, sightseeing, culture, and unique experiences.
+- End with 3 practical travel tips for visiting ${destination}.
 `;
 
   try {
-    // Initialize OpenAI *inside* the handler
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+    // Initialize OpenRouter client instead of OpenAI
+    const client = new OpenAI({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: "https://openrouter.ai/api/v1",
+      defaultHeaders: {
+        "HTTP-Referer": "http://localhost:5173",
+        "X-Title": "RoamLog AI Planner",
+      },
     });
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    // Make AI request
+    const completion = await client.chat.completions.create({
+      model: "meta-llama/llama-3.3-70b-instruct",
       messages: [
         { role: "system", content: "You are an expert travel planner." },
         { role: "user", content: prompt },
@@ -91,12 +87,21 @@ Requirements:
     });
 
     const text =
-      completion.choices[0]?.message?.content?.trim() ||
-      "I couldn't generate an itinerary. Please try again.";
+      completion.choices?.[0]?.message?.content?.trim() ||
+      "Couldn't generate itinerary.";
 
     return res.json({ itinerary: text });
   } catch (err) {
-    console.error("AI itinerary error:", err);
+    console.error("AI Planner Error:", err);
+
+    const code = err?.error?.code;
+    if (err?.status === 429 || code === "insufficient_quota") {
+      return res.status(503).json({
+        error:
+          "AI planner is temporarily unavailable due to usage limits. Try again later.",
+      });
+    }
+
     return res.status(500).json({
       error: "Failed to generate itinerary.",
     });
