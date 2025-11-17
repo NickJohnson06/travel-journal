@@ -121,7 +121,7 @@ export default function App() {
             </Protected>
           }
         />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/ai-planner" replace />} />
       </Routes>
     </div>
   );

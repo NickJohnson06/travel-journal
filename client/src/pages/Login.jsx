@@ -20,7 +20,7 @@ export default function Login() {
 
     try {
       await api.post("/auth/login", form);
-      nav("/dashboard");
+      nav("/ai-planner");
     } catch (err) {
       setError(err.response?.data?.error || "Login failed.");
     }
