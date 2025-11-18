@@ -9,6 +9,7 @@ export default function TripDetail() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [expandedEntryId, setExpandedEntryId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +49,9 @@ export default function TripDetail() {
     try {
       await api.delete(`/entries/${entryId}`);
       setEntries((prev) => prev.filter((e) => e._id !== entryId));
+      if (expandedEntryId === entryId) {
+        setExpandedEntryId(null);
+      }
     } catch (err) {
       alert(err.response?.data?.error || "Failed to delete entry.");
     }
@@ -60,7 +64,7 @@ export default function TripDetail() {
     if (!yes) return;
     try {
       await api.delete(`/trips/${trip._id}`);
-      nav("/dashboard");
+      nav("/ai-planner"); // or "/dashboard" if you prefer
     } catch (err) {
       alert(err.response?.data?.error || "Failed to delete trip.");
     }
@@ -87,10 +91,10 @@ export default function TripDetail() {
             {error || "We couldn't find this trip."}
           </p>
           <button
-            onClick={() => nav("/dashboard")}
+            onClick={() => nav("/ai-planner")}
             className="px-3 py-2 rounded-xl bg-skyaqua text-skydeep text-sm font-semibold hover:bg-sky-400 transition"
           >
-            Back to dashboard
+            Back to planner
           </button>
         </div>
       </div>
@@ -105,10 +109,10 @@ export default function TripDetail() {
       {/* Top bar */}
       <div className="flex items-center justify-between gap-4">
         <button
-          onClick={() => nav("/dashboard")}
+          onClick={() => nav("/ai-planner")}
           className="text-xs text-slate-400 hover:text-slate-200 transition"
         >
-          ← Back to dashboard
+          ← Back to AI Planner
         </button>
         <div className="flex gap-3">
           <button
@@ -184,6 +188,12 @@ export default function TripDetail() {
               <EntryCard
                 key={entry._id}
                 entry={entry}
+                isExpanded={expandedEntryId === entry._id}
+                onToggle={() =>
+                  setExpandedEntryId((prev) =>
+                    prev === entry._id ? null : entry._id
+                  )
+                }
                 onEdit={() => nav(`/entries/${entry._id}/edit`)}
                 onDelete={() => handleDeleteEntry(entry._id)}
               />
@@ -195,8 +205,9 @@ export default function TripDetail() {
   );
 }
 
-function EntryCard({ entry, onEdit, onDelete }) {
+function EntryCard({ entry, isExpanded, onToggle, onEdit, onDelete }) {
   const date = new Date(entry.date).toLocaleDateString();
+
   return (
     <article className="card p-4 border-l-4 border-skyaqua/70">
       <div className="flex items-baseline justify-between gap-3">
@@ -219,9 +230,25 @@ function EntryCard({ entry, onEdit, onDelete }) {
           </button>
         </div>
       </div>
-      <p className="mt-2 text-xs text-slate-300 line-clamp-3">
+
+      <p
+        className={
+          "mt-2 text-xs text-slate-300 whitespace-pre-wrap leading-relaxed " +
+          (isExpanded ? "" : "line-clamp-3")
+        }
+      >
         {entry.content}
       </p>
+
+      <div className="mt-2 flex justify-end">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="text-[11px] text-slate-400 hover:text-slate-200"
+        >
+          {isExpanded ? "Hide full entry" : "View full entry"}
+        </button>
+      </div>
     </article>
   );
 }

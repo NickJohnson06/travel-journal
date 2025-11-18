@@ -21,6 +21,7 @@ export default function Navbar({ user }) {
   return (
     <header className="fixed top-0 left-0 right-0 z-20 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur">
       <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
+        
         {/* Brand */}
         <div className="flex items-center gap-2">
           <div className="h-6 w-6 rounded-full bg-skyaqua/20 flex items-center justify-center border border-skyaqua/50">
@@ -41,6 +42,15 @@ export default function Navbar({ user }) {
         {/* Links */}
         <nav className="flex items-center gap-2">
           <NavLink
+            to="/ai-planner"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : linkInactive}`
+            }
+          >
+            AI Planner
+          </NavLink>
+
+          <NavLink
             to="/dashboard"
             className={({ isActive }) =>
               `${linkBase} ${isActive ? linkActive : linkInactive}`
@@ -48,6 +58,7 @@ export default function Navbar({ user }) {
           >
             Dashboard
           </NavLink>
+
           <NavLink
             to="/profile"
             className={({ isActive }) =>
@@ -55,14 +66,6 @@ export default function Navbar({ user }) {
             }
           >
             Profile
-          </NavLink>
-          <NavLink
-            to="/ai-planner"
-            className={({ isActive }) =>
-              `${linkBase} ${isActive ? linkActive : linkInactive}`
-            }
-          >
-            AI Planner
           </NavLink>
         </nav>
 
